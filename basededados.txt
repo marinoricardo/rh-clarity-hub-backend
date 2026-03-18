@@ -1,0 +1,217 @@
+Claro 👍
+Abaixo está **um desenho completo da base de dados (modelo relacional)** para a aplicação de **Gestão de Trabalhadores (RH)**, alinhado com **todas as telas e funcionalidades** que você descreveu.
+
+Vou apresentar em **forma lógica (tabelas + campos)** e depois um **resumo do relacionamento** entre elas.
+
+---
+
+# 🗄️ MODELO DE BASE DE DADOS – GESTÃO DE TRABALHADORES (RH)
+
+## 1️⃣ Usuários (Login do RH)
+
+### **users**
+
+| Campo      | Tipo     | Descrição          |
+| ---------- | -------- | ------------------ |
+| id         | PK       | Identificador      |
+| name       | varchar  | Nome do usuário    |
+| email      | varchar  | Email              |
+| password   | varchar  | Senha              |
+| role       | varchar  | Perfil (RH, Admin) |
+| created_at | datetime | Data criação       |
+
+---
+
+## 2️⃣ Trabalhadores
+
+### **workers**
+
+| Campo      | Tipo     | Descrição                 |
+| ---------- | -------- | ------------------------- |
+| id         | PK       |                           |
+| first_name | varchar  |                           |
+| last_name  | varchar  |                           |
+| birth_date | date     |                           |
+| phone      | varchar  |                           |
+| email      | varchar  |                           |
+| address    | text     |                           |
+| id_number  | varchar  |                           |
+| status     | enum     | ativo, pendente, removido |
+| created_at | datetime |                           |
+
+---
+
+## 3️⃣ Dados Empresariais
+
+### **worker_company_data**
+
+| Campo          | Tipo         |
+| -------------- | ------------ |
+| id             | PK           |
+| worker_id      | FK → workers |
+| position       | varchar      |
+| department     | varchar      |
+| unit_id        | FK → units   |
+| contract_type  | varchar      |
+| admission_date | date         |
+
+---
+
+## 4️⃣ Unidades (UN’s)
+
+### **units**
+
+| Campo       | Tipo    |
+| ----------- | ------- |
+| id          | PK      |
+| name        | varchar |
+| description | text    |
+
+---
+
+## 5️⃣ Documentos do Trabalhador
+
+### **documents**
+
+| Campo         | Tipo         |
+| ------------- | ------------ |
+| id            | PK           |
+| worker_id     | FK → workers |
+| document_type | varchar      |
+| file_path     | varchar      |
+| uploaded_at   | datetime     |
+
+---
+
+## 6️⃣ Trabalhadores Pendentes (Stepper)
+
+### **worker_steps**
+
+| Campo          | Tipo         |
+| -------------- | ------------ |
+| id             | PK           |
+| worker_id      | FK → workers |
+| step_personal  | boolean      |
+| step_company   | boolean      |
+| step_documents | boolean      |
+| completed      | boolean      |
+
+---
+
+## 7️⃣ Presenças / Absentismo
+
+### **attendance**
+
+| Campo      | Tipo         |                             |
+| ---------- | ------------ | --------------------------- |
+| id         | PK           |                             |
+| worker_id  | FK → workers |                             |
+| date       | date         |                             |
+| status     | enum         | presente, falta, absentismo |
+| reason     | text         |                             |
+| attachment | varchar      |                             |
+| created_at | datetime     |                             |
+
+---
+
+## 8️⃣ Avaliação de Desempenho
+
+### **performance_reviews**
+
+| Campo         | Tipo         |                     |
+| ------------- | ------------ | ------------------- |
+| id            | PK           |                     |
+| worker_id     | FK → workers |                     |
+| period        | varchar      |                     |
+| status        | enum         | pendente, concluida |
+| file_download | varchar      |                     |
+| file_upload   | varchar      |                     |
+| created_at    | datetime     |                     |
+
+---
+
+## 9️⃣ Contratos
+
+### **contracts**
+
+| Campo         | Tipo         |                           |
+| ------------- | ------------ | ------------------------- |
+| id            | PK           |                           |
+| worker_id     | FK → workers |                           |
+| contract_type | varchar      |                           |
+| start_date    | date         |                           |
+| end_date      | date         |                           |
+| status        | enum         | ativo, expirado, removido |
+| file_path     | varchar      |                           |
+
+---
+
+## 🔟 Gestão Financeira
+
+### **financial_records**
+
+| Campo       | Tipo       |
+| ----------- | ---------- |
+| id          | PK         |
+| unit_id     | FK → units |
+| value       | decimal    |
+| description | text       |
+| created_at  | datetime   |
+
+---
+
+## 1️⃣1️⃣ Trabalhadores Removidos (Histórico)
+
+### **removed_workers**
+
+| Campo      | Tipo         |
+| ---------- | ------------ |
+| id         | PK           |
+| worker_id  | FK → workers |
+| removed_at | datetime     |
+| reason     | text         |
+
+*(Opcional – pode também usar apenas `status = removido` na tabela workers)*
+
+---
+
+# 🔗 RELACIONAMENTOS (RESUMO)
+
+```
+users
+  └── login RH
+
+workers
+ ├── worker_company_data (1–1)
+ ├── documents (1–N)
+ ├── attendance (1–N)
+ ├── performance_reviews (1–N)
+ ├── contracts (1–N)
+ ├── worker_steps (1–1)
+ └── removed_workers (1–1)
+
+units
+ ├── worker_company_data (1–N)
+ └── financial_records (1–N)
+```
+
+---
+
+# 🧠 OBSERVAÇÕES IMPORTANTES
+
+* **Stepper** funciona via `worker_steps`
+* **Trabalhadores pendentes** = `status = pendente` ou `completed = false`
+* **Gestão financeira** é por UN
+* **Documentos e avaliações** permitem download e upload
+* **Base preparada para UI intuitiva e escalável**
+
+---
+
+Se quiser, no próximo passo posso:
+
+* 📌 Criar **diagrama ER (visual – estilo Draw.io / Figma)**
+* 🧩 Converter isso para **SQL (MySQL / PostgreSQL)**
+* 🚀 Adaptar para **Laravel, NestJS, Django**
+* 🔐 Incluir **auditoria e logs**
+
+É só dizer o próximo passo 😉
