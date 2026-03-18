@@ -60,6 +60,10 @@ Route::prefix('attendances')->middleware('api')->group(function () {
 
 Route::middleware('api')->group(function () {
     Route::apiResource('worker-performances', WorkerPerformanceController::class);
+
+    // Recontratar (rehire) based on performance statuses
+    Route::post('worker-performances/recontratar', [WorkerPerformanceController::class, 'recontratar']);
+
     Route::apiResource('fundos-alocados', FundoAlocadoController::class);
 
 });

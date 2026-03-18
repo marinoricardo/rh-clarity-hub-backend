@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contract;
 use App\Models\WorkerPerfomance;
-use App\Models\WorkerPerformance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +32,68 @@ class WorkerPerformanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch performances',
+            ], 500);
+        }
+    }
+
+    /**
+     * Check if a worker can be rehired based on positive performances.
+     *
+     * A worker is eligible if they have at least 2 performances with status "Bom" or "Muito Bom".
+     */
+    public function recontratar(Request $request)
+    {
+        $request->validate([
+            'worker_id' => 'required|exists:workers,id',
+        ]);
+
+        $positiveStatuses = ['Bom', 'Muito Bom'];
+
+        $positiveCount = WorkerPerfomance::where('worker_id', $request->worker_id)
+            ->whereIn('status', $positiveStatuses)
+            ->count();
+
+        if ($positiveCount < 2) {
+            return response()->json([
+                'success' => false,
+                'can_rehire' => false,
+                'positive_count' => $positiveCount,
+                'message' => 'O trabalhador não atende aos critérios de recontratação (precisa de pelo menos 2 avaliações positivas).',
+            ], 422);
+        }
+
+        DB::beginTransaction();
+        try {
+            $contract = Contract::create([
+                'worker_id' => $request->worker_id,
+                'contract_type' => 'Recontratação',
+                'start_date' => now()->toDateString(),
+                'end_date' => null,
+                'status' => 'ativo',
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'can_rehire' => true,
+                'positive_count' => $positiveCount,
+                'message' => 'Trabalhador recontratado com sucesso e contrato registrado.',
+                'data' => $contract,
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Failed to rehire worker', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'worker_id' => $request->worker_id,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'can_rehire' => true,
+                'positive_count' => $positiveCount,
+                'message' => 'Falha ao criar registro de contrato de recontratação. ' . $e->getMessage(),
             ], 500);
         }
     }
