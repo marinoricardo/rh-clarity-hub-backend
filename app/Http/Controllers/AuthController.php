@@ -29,7 +29,7 @@ class AuthController extends Controller
 
             // Tenta gerar token
             if (! $token = JWTAuth::attempt($credentials)) {
-                return $this->errorResponse('Invalid credentials', 400);
+                return $this->errorResponse('Email ou senha inválidos', 400);
             }
 
             $user = JWTAuth::user();
