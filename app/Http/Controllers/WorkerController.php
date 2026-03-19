@@ -231,7 +231,7 @@ class WorkerController extends Controller
                 'region' => 'nullable|string|max:255',
                 'department' => 'nullable|string|max:255',
                 'organic_unit' => 'required|string|max:255',
-                'sector' => 'required|string|max:255',
+                'sector' => 'nullable|string|max:255',
                 'salary' => 'required|numeric|min:0',
                 'status' => 'required|string',
             ]);
@@ -357,6 +357,7 @@ class WorkerController extends Controller
                 'education_certificate' => 'nullable|file|max:10240',
                 'cv' => 'nullable|file|max:10240',
                 'other_certifications' => 'nullable|file|max:10240',
+                'declaracao_documento_url' => 'nullable|file|max:10240',
             ]);
 
             // Pega ou cria o registro de documentos
@@ -369,6 +370,7 @@ class WorkerController extends Controller
                 'education_certificate' => 'education_certificate_url',
                 'cv' => 'cv_url',
                 'other_certifications' => 'other_certifications_url',
+                'declaracao_documento_url' => 'other_certifications_url',
             ];
 
             $uploaded = [];

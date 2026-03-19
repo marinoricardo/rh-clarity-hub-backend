@@ -16,6 +16,7 @@ class Document extends Model
         'education_certificate_url',
         'cv_url',
         'other_certifications_url',
+        'declaracao_documento_url'
     ];
 
     public function worker()

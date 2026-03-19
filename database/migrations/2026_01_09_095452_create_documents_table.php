@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('education_certificate_url')->nullable();         // Certificado de Habilitações
             $table->string('cv_url')->nullable();                             // Curriculum
             $table->string('other_certifications_url')->nullable(); // Outras Certificações
+            $table->string('declaracao_documento_url')->nullable(); 
 
             // Foreign key
             $table->foreign('worker_id')
